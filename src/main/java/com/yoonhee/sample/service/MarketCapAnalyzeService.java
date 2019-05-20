@@ -16,37 +16,32 @@ import java.net.URL;
 @Service
 public class MarketCapAnalyzeService {
     private static final Logger LOGGER = LoggerFactory.getLogger(MarketCapAnalyzeService.class);
-    public static BigDecimal initMarketCap = BigDecimal.ZERO;
-    public static BigDecimal lastMarketCap = BigDecimal.ZERO;
+    private static BigDecimal initMarketCap = BigDecimal.ZERO;
+    private static BigDecimal lastMarketCap = BigDecimal.ZERO;
     public static BigDecimal maxMarketCapDiff = BigDecimal.ZERO;
     public static Stock prevStock = null;
+    private static boolean isInitial = true;
 
-    @Autowired
     private ObjectMapper objectMapper;
+    private QuoteService quoteService;
 
-    public Stock getData(String endPoint) {
-        Stock stock = null;
-        try {
-            URL url = new URL(endPoint);
+    public MarketCapAnalyzeService(ObjectMapper objectMapper, QuoteService quoteService) {
+        this.objectMapper = objectMapper;
+        this.quoteService = quoteService;
+    }
 
-            BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(url.openStream()));
-            String response = bufferedReader.readLine();
-
-            stock = objectMapper.readValue(response, Stock.class);
-            bufferedReader.close();
-
-            if (!this.isAAPLQuote(stock.getSymbol())) {
-                LOGGER.info("Stock quote is not for AAPL");
-                return null;
-            }
-            //TODO delete
-            System.out.println(stock.toString());
-
-        } catch (IOException e) {
-            LOGGER.info("File Not Found");
+    public Stock getData() {
+        Stock stock = quoteService.getQuote();
+        if(stock == null) {
+            LOGGER.warn("Stock quote is null");
+            return null;
         }
-
-
+        if (!this.isAAPLQuote(stock.getSymbol())) {
+            LOGGER.warn("Stock quote is not for AAPL");
+            return null;
+        }
+        populateMarkeyCapSummary(stock);
+        System.out.println(stock.toString());
         return stock;
     }
 
@@ -63,8 +58,15 @@ public class MarketCapAnalyzeService {
         return symbol.equals("AAPL");
     }
 
+    private void populateMarkeyCapSummary(Stock stock) {
+        if (isInitial) {
+            initMarketCap = this.getMarketCapitalization(stock);
+            isInitial = false;
+        }
+        lastMarketCap = this.getMarketCapitalization(stock);
+    }
+
     private void printMarketCapSummary() {
-        System.out.println("===============================");
         System.out.println("Close AAPL data polling system");
         System.out.println("Change in Market Capitalization Summary");
         System.out.println("initial Market Capitalization: " + initMarketCap);
