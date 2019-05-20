@@ -8,7 +8,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 
 @Configuration
 @EnableScheduling
-public class SpringConfiguration{
+public class SpringConfiguration {
     @Bean
     public ObjectMapper objectMapper() {
         return new ObjectMapper();
@@ -16,8 +16,6 @@ public class SpringConfiguration{
 
     @Bean
     public ScheduledTask task() {
-        ScheduledTask scheduledTask = new ScheduledTask();
-        scheduledTask.setAwaitTerminationSeconds(10);
-        return scheduledTask;
+        return new ScheduledTask();
     }
 }

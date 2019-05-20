@@ -12,11 +12,11 @@ import static com.yoonhee.sample.service.MarketCapAnalyzeService.maxMarketCapDif
 import static com.yoonhee.sample.service.MarketCapAnalyzeService.prevStock;
 
 @Component
-public class ScheduledTask extends ThreadPoolTaskExecutor {
+public class ScheduledTask {
     @Autowired
     private MarketCapAnalyzeService marketCapAnalyzeService;
 
-    @Scheduled(fixedRate = 1000)
+    @Scheduled(fixedRate = 5000)
     public void reportMarketCap() {
         Stock stock = marketCapAnalyzeService.getData();
 
@@ -27,10 +27,6 @@ public class ScheduledTask extends ThreadPoolTaskExecutor {
             Timestamp timestamp = new Timestamp(System.currentTimeMillis());
             System.out.println("Maximum Change in Market Capitalization: " + maxMarketCapDiff);
             System.out.println(timestamp);
-
-
         }
     }
-
-
 }

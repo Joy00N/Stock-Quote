@@ -36,7 +36,7 @@ public class QuoteService {
             stock = objectMapper.readValue(response, Stock.class);
             bufferedReader.close();
 
-        } catch (Exception e) {
+        } catch (IOException e) {
             LOGGER.error("Exception while processing quote", e);
             return null;
         }
